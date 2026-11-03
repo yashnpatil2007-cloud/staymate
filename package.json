@@ -1,0 +1,17 @@
+{
+  "name": "staymate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StayMate - Find Your Stay. Find Your People.",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n API,WEB -c cyan,green \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "seed": "npm run seed --prefix server",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix server",
+    "test:e2e": "node server/test-full-stack.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
