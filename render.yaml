@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: staymate-api
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node src/server.js
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: COOKIE_NAME
+        value: staymate_token
+      - key: ADMIN_NAME
+        value: StayMate Admin
+      - key: ADMIN_EMAIL
+        value: admin@staymate.app
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SEED_DEMO
+        value: "false"
