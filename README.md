@@ -137,3 +137,4 @@ StayMate is structured for sustainable future monetization while preserving free
 - **Subscription Tiers**: Pro owner and premium food provider subscription plans for increased listing limits and analytics.
 - **Verified Badge Verification**: Paid inspection and verification services for properties.
 - **Future Booking Deposits**: Escrow and token booking advance reserves.
+

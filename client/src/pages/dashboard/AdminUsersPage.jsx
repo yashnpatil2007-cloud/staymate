@@ -77,10 +77,11 @@ export default function AdminUsersPage() {
 
   const confirmDelete = async () => {
     if (!deleting) return;
+    const memberId = deleting._id || deleting.id;
     setDeleteBusy(true);
     try {
-      await api.delete(`/admin/users/${deleting._id}`);
-      setUsers((current) => current.filter((item) => item._id !== deleting._id));
+      await api.delete(`/admin/users/${memberId}`);
+      setUsers((current) => current.filter((item) => (item._id || item.id) !== memberId));
       toast.success('Member and related records deleted.');
       setDeleting(null);
     } catch (deleteError) {
@@ -230,7 +231,7 @@ export default function AdminUsersPage() {
         )}
       >
         <p className="muted">
-          <strong>{deleting?.name}</strong> ({deleting?.email}) will be deleted along with their listings, enquiries,
+          <strong>{deleting?.name || 'This member'}</strong> {deleting?.email ? `(${deleting.email})` : ''} will be deleted along with their listings, enquiries,
           reviews, roommate data and notifications. This cannot be undone.
         </p>
       </Modal>

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 export default function Modal({
+  open = true,
   title,
   description,
   children,
@@ -12,6 +13,7 @@ export default function Modal({
   closeOnBackdrop = true
 }) {
   useEffect(() => {
+    if (!open) return;
     const onKey = (event) => {
       if (event.key === 'Escape') onClose?.();
     };
@@ -22,7 +24,9 @@ export default function Modal({
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = previous;
     };
-  }, [onClose]);
+  }, [open, onClose]);
+
+  if (!open) return null;
 
   return createPortal(
     <div
