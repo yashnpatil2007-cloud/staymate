@@ -27,7 +27,18 @@ async function getReviewState(userId, listingType, listingId) {
   if (!userId) {
     return {
       canReview: false,
-      reason: 'Log in after contacting the provider to leave a review.',
+      reason: 'Log in to write a review for this listing.',
+      hasReviewed: false
+    };
+  }
+
+  const Model = listingType === 'property' ? Property : FoodProvider;
+  const listing = await Model.findById(listingId).select('owner user');
+  const ownerId = listing ? (listing.owner || listing.user)?.toString() : null;
+  if (ownerId && ownerId === userId.toString()) {
+    return {
+      canReview: false,
+      reason: 'You cannot review your own listing.',
       hasReviewed: false
     };
   }
@@ -40,20 +51,15 @@ async function getReviewState(userId, listingType, listingId) {
   const enquiry = await Enquiry.findOne({
     user: userId,
     listingType,
-    listingId,
-    status: 'contacted'
+    listingId
   }).sort({ createdAt: -1 });
 
-  if (!enquiry) {
-    return {
-      canReview: false,
-      reason:
-        'Reviews are available after a verified interaction: send an enquiry and wait for the provider to mark it as contacted.',
-      hasReviewed: false
-    };
-  }
-
-  return { canReview: true, reason: '', hasReviewed: false, enquiryId: enquiry._id };
+  return {
+    canReview: true,
+    reason: '',
+    hasReviewed: false,
+    enquiryId: enquiry ? enquiry._id : null
+  };
 }
 
 async function getSavedIds(userId, listingType, ids) {

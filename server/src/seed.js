@@ -8,6 +8,8 @@ const Property = require('./models/Property');
 const FoodProvider = require('./models/FoodProvider');
 const MealPlan = require('./models/MealPlan');
 const RoommateProfile = require('./models/RoommateProfile');
+const Review = require('./models/Review');
+const { recalculateRating } = require('./utils/listing');
 
 const DEMO_PASSWORD = 'Demo1234!';
 
@@ -649,6 +651,120 @@ async function seedDatabase() {
   );
   created.push(`${DEMO_ROOMMATES.length} demo roommate profiles`);
 
+  await Review.deleteMany({ user: { $in: Object.values(demoUsers).map((u) => u._id) } });
+
+  const demoReviews = [
+    {
+      user: demoUsers.aarav._id,
+      listingType: 'property',
+      listingId: propertyDocs[0]._id,
+      rating: 5,
+      comment:
+        'Stayed here during my first year at Christ University. Safe, quiet during exam season, and the high-speed Wi-Fi actually works reliably on all floors.',
+      reviewerType: 'student',
+      verifiedInteraction: true,
+      status: 'approved'
+    },
+    {
+      user: customer._id,
+      listingType: 'property',
+      listingId: propertyDocs[0]._id,
+      rating: 5,
+      comment:
+        'Clean rooms, punctual housekeeping, and peaceful study lounge. Very convenient walking distance from the main road.',
+      reviewerType: 'resident',
+      verifiedInteraction: true,
+      status: 'approved'
+    },
+    {
+      user: demoUsers.sneha._id,
+      listingType: 'property',
+      listingId: propertyDocs[1]._id,
+      rating: 5,
+      comment:
+        'I work at EON IT park and this PG is super comfortable. AC works great, food tastes like home, and having an attached bathroom is a huge plus.',
+      reviewerType: 'working_professional',
+      verifiedInteraction: true,
+      status: 'approved'
+    },
+    {
+      user: demoUsers.kabir._id,
+      listingType: 'property',
+      listingId: propertyDocs[2]._id,
+      rating: 5,
+      comment:
+        'Great gated society with covered parking and power backup. Financial district is just 10 mins away. Flatmates are friendly and cooperative.',
+      reviewerType: 'working_professional',
+      verifiedInteraction: true,
+      status: 'approved'
+    },
+    {
+      user: demoUsers.ananya._id,
+      listingType: 'property',
+      listingId: propertyDocs[3]._id,
+      rating: 4,
+      comment:
+        'Affordable room close to DU North Campus. Study atmosphere is great. Landlord is responsive to any maintenance requests.',
+      reviewerType: 'student',
+      verifiedInteraction: true,
+      status: 'approved'
+    },
+    {
+      user: demoUsers.aarav._id,
+      listingType: 'food',
+      listingId: foodDocs[0]._id,
+      rating: 5,
+      comment:
+        'Best South Indian mess in Koramangala! Unlimited hot rice and piping hot sambar. Totally pocket-friendly for college students.',
+      reviewerType: 'student',
+      verifiedInteraction: true,
+      status: 'approved'
+    },
+    {
+      user: customer._id,
+      listingType: 'food',
+      listingId: foodDocs[0]._id,
+      rating: 5,
+      comment:
+        'Hygiene is top tier. The Wednesday and Sunday curd rice and special sweets make it feel like home.',
+      reviewerType: 'resident',
+      verifiedInteraction: true,
+      status: 'approved'
+    },
+    {
+      user: demoUsers.sneha._id,
+      listingType: 'food',
+      listingId: foodDocs[1]._id,
+      rating: 5,
+      comment:
+        'Soft phulkas and fresh sabzi delivered right on time every day at 1 PM to our office. Highly recommended for working employees.',
+      reviewerType: 'working_professional',
+      verifiedInteraction: true,
+      status: 'approved'
+    },
+    {
+      user: demoUsers.ananya._id,
+      listingType: 'food',
+      listingId: foodDocs[3]._id,
+      rating: 5,
+      comment:
+        'Life-saver for UPSC & college students in Mukherjee Nagar. Pure home-style taste and no excess oil.',
+      reviewerType: 'student',
+      verifiedInteraction: true,
+      status: 'approved'
+    }
+  ];
+
+  await Review.insertMany(demoReviews);
+  created.push(`${demoReviews.length} demo reviews from students and employees`);
+
+  for (const property of propertyDocs) {
+    await recalculateRating('property', property._id);
+  }
+  for (const food of foodDocs) {
+    await recalculateRating('food', food._id);
+  }
+
   console.log('Seed complete:');
   created.forEach((entry) => console.log(`  - ${entry}`));
   console.log('\nDemo accounts (demo data only - not real customers):');
@@ -656,7 +772,7 @@ async function seedDatabase() {
   console.log(`  Owner:    ${owner.email} / ${DEMO_PASSWORD}`);
   console.log(`  Provider: ${provider.email} / ${DEMO_PASSWORD}`);
   if (admin) console.log(`  Admin:    ${admin.email} / (password from ADMIN_PASSWORD)`);
-  console.log('\nDemo listings are labelled as demo in the UI. No reviews were seeded.\n');
+  console.log('\nDemo listings & authentic student/employee reviews seeded successfully.\n');
 
   return { customer, owner, provider, admin };
 }

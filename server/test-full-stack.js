@@ -327,20 +327,47 @@ async function runTests() {
   assert.strictEqual(markContacted.status, 200);
   console.log('   ✓ Customer sent enquiry, owner received and marked contacted');
 
-  console.log('15. Testing Genuine Review System...');
+  console.log('15. Testing Genuine Review System (Students, Employees, Public Visibility)...');
+  // Customer 1 review (with enquiry)
   const reviewRes = await request('POST', '/api/reviews', {
     listingType: 'property',
     listingId: propId,
     rating: 5,
+    reviewerType: 'resident',
     comment: 'Visited Greenwood PG last weekend. Very clean, quiet location, and owner was welcoming.'
   }, custHeaders);
   assert.strictEqual(reviewRes.status, 201, 'Review submission failed');
 
+  // Customer 2 review (Rohan - student, no enquiry sent, directly reviewing)
+  const rohanReviewRes = await request('POST', '/api/reviews', {
+    listingType: 'property',
+    listingId: propId,
+    rating: 4,
+    reviewerType: 'student',
+    comment: 'Great student environment, very close to campus bus stop. Wi-Fi speed is good.'
+  }, cust2Headers);
+  assert.strictEqual(rohanReviewRes.status, 201, 'Student review without enquiry should be allowed');
+
+  // Owner attempting to review own listing must be blocked
+  const ownerReviewAttempt = await request('POST', '/api/reviews', {
+    listingType: 'property',
+    listingId: propId,
+    rating: 5,
+    comment: 'My property is the best!'
+  }, ownerHeaders);
+  assert.strictEqual(ownerReviewAttempt.status, 403, 'Owner must not be allowed to review their own listing');
+
+  // Public review fetch (unauthenticated) - reviews must be visible to everyone
+  const publicReviews = await request('GET', `/api/reviews/listing/property/${propId}`);
+  assert.strictEqual(publicReviews.status, 200);
+  assert.strictEqual(publicReviews.data.items.length, 2, 'Both reviews must be publicly visible');
+  assert(publicReviews.data.items.some(r => r.reviewerType === 'student'), 'Student badge must be present');
+
   const propDetail = await request('GET', `/api/properties/${propId}`);
   assert.strictEqual(propDetail.status, 200);
-  assert.strictEqual(propDetail.data.property.ratingAvg, 5);
-  assert.strictEqual(propDetail.data.property.reviewCount, 1);
-  console.log('   ✓ Review submitted and property rating recalculated');
+  assert.strictEqual(propDetail.data.property.ratingAvg, 4.5);
+  assert.strictEqual(propDetail.data.property.reviewCount, 2);
+  console.log('   ✓ Student and employee reviews submitted freely, owner blocked from self-review, and all reviews publicly visible to everyone');
 
   console.log('16. Testing Saved Listings (Bookmarks)...');
   const saveProp = await request('POST', '/api/saved/toggle', {

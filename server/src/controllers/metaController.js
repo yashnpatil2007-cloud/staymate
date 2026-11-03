@@ -4,9 +4,9 @@ const FoodProvider = require('../models/FoodProvider');
 const asyncHandler = require('../utils/asyncHandler');
 
 const getTestimonials = asyncHandler(async (req, res) => {
-  const reviews = await Review.find({ status: 'approved', verifiedInteraction: true })
-    .populate('user', 'name avatar city isDemo')
-    .sort({ createdAt: -1 })
+  const reviews = await Review.find({ status: 'approved' })
+    .populate('user', 'name avatar city isDemo role')
+    .sort({ rating: -1, createdAt: -1 })
     .limit(6);
 
   const items = await Promise.all(
@@ -19,12 +19,14 @@ const getTestimonials = asyncHandler(async (req, res) => {
         id: review._id,
         rating: review.rating,
         comment: review.comment,
+        reviewerType: review.reviewerType || 'resident',
         createdAt: review.createdAt,
         user: review.user
           ? {
               name: review.user.name,
               avatar: review.user.avatar || '',
               city: review.user.city || '',
+              role: review.user.role || 'customer',
               isDemo: review.user.isDemo
             }
           : null,

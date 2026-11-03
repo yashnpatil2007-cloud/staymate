@@ -157,7 +157,11 @@ const reviewSchema = z.object({
   listingType: z.enum(['property', 'food']),
   listingId: z.string().min(12, 'Invalid listing'),
   rating: z.coerce.number().int().min(1).max(5),
-  comment: z.string().trim().min(10, 'Review must be at least 10 characters').max(1200)
+  comment: z.string().trim().min(5, 'Review must be at least 5 characters').max(1200),
+  reviewerType: z
+    .enum(['student', 'working_professional', 'resident', 'visitor', 'other'])
+    .optional()
+    .default('resident')
 });
 
 const reportSchema = z.object({

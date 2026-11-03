@@ -8,3 +8,6 @@ server/uploads/*
 !server/uploads/.gitkeep
 .DS_Store
 *.log
+
+# Local Netlify folder
+.netlify

@@ -3096,7 +3096,61 @@ h2.display {
   background: var(--teal-soft);
   padding: 3px 6px;
   border-radius: 5px;
-  margin-left: auto;
+}
+
+.reviewer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+
+.reviewer-badge.student {
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.reviewer-badge.working_professional {
+  color: #1e40af;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.reviewer-badge.resident {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.reviewer-badge.visitor {
+  color: #4b5563;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.review-delete-btn {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-delete-btn:hover {
+  color: #dc2626;
+  background: #fee2e2;
 }
 
 .rating-input {

@@ -538,8 +538,8 @@ export default function HomePage() {
               },
               {
                 icon: Star,
-                title: 'Verified reviews only',
-                text: 'A review can only be written after a provider confirms an enquiry interaction. No seeded testimonials.'
+                title: 'Community reviews',
+                text: 'Transparent ratings and reviews from verified students, working professionals, and residents.'
               },
               {
                 icon: Clock3,
@@ -571,32 +571,52 @@ export default function HomePage() {
         <div className="container">
           <div className="section-head">
             <div className="section-head-copy">
-              <span className="eyebrow">From real interactions</span>
-              <h2 className="display">What residents are saying</h2>
+              <span className="eyebrow">Real Experiences</span>
+              <h2 className="display">What students & professionals are saying</h2>
               <p>
-                Every review below is tied to a verified enquiry interaction. There are no purchased
-                or seeded testimonials on StayMate.
+                Authentic reviews from students, employees, and residents sharing genuine feedback on
+                hostels, PGs, flats, and mess services.
               </p>
             </div>
           </div>
           {testimonials.length > 0 ? (
             <div className="testimonial-grid">
-              {testimonials.slice(0, 3).map((testimonial) => (
-                <article className="testimonial-card" key={testimonial.id}>
-                  <RatingStars value={testimonial.rating} />
-                  <p className="testimonial-quote">“{testimonial.comment}”</p>
-                  <div className="testimonial-user">
-                    <Avatar src={testimonial.user?.avatar} name={testimonial.user?.name} size="sm" />
-                    <div>
-                      <h4>{testimonial.user?.name || 'StayMate customer'}</h4>
-                      <p>
-                        {testimonial.listing?.name ? `Reviewed ${testimonial.listing.name}` : 'Verified review'}
-                        {testimonial.createdAt ? ` · ${formatDate(testimonial.createdAt)}` : ''}
-                      </p>
+              {testimonials.slice(0, 3).map((testimonial) => {
+                const reviewerRoleLabel =
+                  testimonial.reviewerType === 'student'
+                    ? '🎓 Student'
+                    : testimonial.reviewerType === 'working_professional'
+                    ? '💼 Working Professional'
+                    : '🏠 Resident';
+
+                return (
+                  <article className="testimonial-card" key={testimonial.id}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <RatingStars value={testimonial.rating} />
+                      <span className={`reviewer-badge ${testimonial.reviewerType || 'resident'}`}>
+                        {reviewerRoleLabel}
+                      </span>
                     </div>
-                  </div>
-                </article>
-              ))}
+                    <p className="testimonial-quote">“{testimonial.comment}”</p>
+                    <div className="testimonial-user">
+                      <Avatar src={testimonial.user?.avatar} name={testimonial.user?.name} size="sm" />
+                      <div>
+                        <h4>{testimonial.user?.name || 'StayMate customer'}</h4>
+                        <p>
+                          {testimonial.listing?.name ? (
+                            <Link to={testimonial.listing.link} className="btn-link" style={{ fontWeight: 600 }}>
+                              {testimonial.listing.name}
+                            </Link>
+                          ) : (
+                            'Verified review'
+                          )}
+                          {testimonial.createdAt ? ` · ${formatDate(testimonial.createdAt)}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <div className="testimonial-empty">
@@ -605,8 +625,7 @@ export default function HomePage() {
               </span>
               <h3>No public reviews yet</h3>
               <p>
-                StayMate only shows reviews from customers whose enquiry was marked as contacted by
-                the provider. As those interactions happen, genuine reviews will appear here.
+                Be among the first to review accommodation or food services on StayMate.
               </p>
               <Link to="/accommodations" className="btn btn-outline btn-sm">
                 Browse accommodation

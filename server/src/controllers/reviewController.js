@@ -15,7 +15,7 @@ async function findListing(listingType, listingId) {
 const listReviews = asyncHandler(async (req, res) => {
   const { listingType, listingId } = req.params;
   const reviews = await Review.find({ listingType, listingId, status: 'approved' })
-    .populate('user', 'name avatar isDemo')
+    .populate('user', 'name avatar role city isDemo')
     .sort({ createdAt: -1 })
     .limit(100);
   res.json({
@@ -24,11 +24,19 @@ const listReviews = asyncHandler(async (req, res) => {
       id: review._id,
       rating: review.rating,
       comment: review.comment,
+      reviewerType: review.reviewerType || 'resident',
       verifiedInteraction: review.verifiedInteraction,
       createdAt: review.createdAt,
       user: review.user
-        ? { name: review.user.name, avatar: review.user.avatar || '', isDemo: review.user.isDemo }
-        : { name: 'StayMate user', avatar: '' }
+        ? {
+            id: review.user._id,
+            name: review.user.name,
+            avatar: review.user.avatar || '',
+            role: review.user.role,
+            city: review.user.city || '',
+            isDemo: review.user.isDemo
+          }
+        : { name: 'StayMate user', avatar: '', role: 'customer' }
     }))
   });
 });
@@ -40,7 +48,7 @@ const getEligibility = asyncHandler(async (req, res) => {
 });
 
 const createReview = asyncHandler(async (req, res) => {
-  const { listingType, listingId, rating, comment } = req.body;
+  const { listingType, listingId, rating, comment, reviewerType } = req.body;
   const listing = await findListing(listingType, listingId);
   if (!listing || listing.status !== 'approved') {
     throw new AppError('Listing not found.', 404);
@@ -62,25 +70,28 @@ const createReview = asyncHandler(async (req, res) => {
     listingId,
     rating,
     comment,
+    reviewerType: reviewerType || 'resident',
     verifiedInteraction: true,
-    enquiry: state.enquiryId
+    enquiry: state.enquiryId || undefined
   });
 
   await recalculateRating(listingType, listingId);
 
   const recipient = listingType === 'property' ? listing.owner : listing.user;
-  await notify({
-    user: recipient,
-    type: 'system',
-    title: 'New verified review',
-    message: `${req.user.name} left a ${rating}-star review on "${
-      listingType === 'property' ? listing.name : listing.businessName
-    }".`,
-    link:
-      listingType === 'property'
-        ? `/accommodations/${listing._id}`
-        : `/food/${listing._id}`
-  });
+  if (recipient) {
+    await notify({
+      user: recipient,
+      type: 'system',
+      title: 'New review',
+      message: `${req.user.name} left a ${rating}-star review on "${
+        listingType === 'property' ? listing.name : listing.businessName
+      }".`,
+      link:
+        listingType === 'property'
+          ? `/accommodations/${listing._id}`
+          : `/food/${listing._id}`
+    });
+  }
 
   res.status(201).json({ success: true, review });
 });

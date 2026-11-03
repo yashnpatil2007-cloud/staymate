@@ -7,7 +7,12 @@ const reviewSchema = new mongoose.Schema(
     listingId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
     comment: { type: String, required: true, trim: true, maxlength: 1200 },
-    verifiedInteraction: { type: Boolean, default: false },
+    reviewerType: {
+      type: String,
+      enum: ['student', 'working_professional', 'resident', 'visitor', 'other'],
+      default: 'resident'
+    },
+    verifiedInteraction: { type: Boolean, default: true },
     enquiry: { type: mongoose.Schema.Types.ObjectId, ref: 'Enquiry' },
     status: { type: String, enum: ['approved', 'hidden'], default: 'approved', index: true }
   },
