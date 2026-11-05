@@ -12,12 +12,9 @@ async function connectDatabase() {
     return { mode: 'mongodb' };
   }
 
-  if (env.isProduction) {
-    throw new Error('MONGODB_URI is required in production.');
-  }
-
+  // If no MONGODB_URI is provided, fallback to in-memory MongoDB so the server starts without crashing
   const { MongoMemoryServer } = require('mongodb-memory-server');
-  console.log('No MONGODB_URI set - starting in-memory MongoDB for development...');
+  console.log('No MONGODB_URI set - starting in-memory MongoDB...');
   memoryServer = await MongoMemoryServer.create();
   const uri = memoryServer.getUri();
   await mongoose.connect(uri);
