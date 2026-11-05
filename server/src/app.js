@@ -93,9 +93,11 @@ const apiLimiter = rateLimit({
 app.use('/api', apiLimiter);
 
 app.get('/api/health', (req, res) => {
+  const mongoose = require('mongoose');
   res.json({
     success: true,
     status: 'ok',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'initializing',
     environment: env.isProduction ? 'production' : 'development',
     imageStorage: env.cloudinary.enabled ? 'cloudinary' : 'local',
     email: env.emailEnabled ? 'configured' : 'not-configured'

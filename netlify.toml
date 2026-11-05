@@ -5,7 +5,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "https://jvc-presenting-warriors-abc.trycloudflare.com/api/:splat"
+  to = "https://staymate-api-9hde.onrender.com/api/:splat"
   status = 200
   force = true
 
